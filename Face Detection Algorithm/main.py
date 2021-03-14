@@ -1,12 +1,14 @@
 import os
 import cv2
+import dlib
 import argparse
 import time
 from detectors import *
 
 parser = argparse.ArgumentParser(description='Select face detector which you want to use')
-parser.add_argument('--detector', '-d', choices=['h'], help='''
-                        "h" : haar-cascade
+parser.add_argument('--detector', '-d', choices=['h','d'], help='''
+                        "h" : haar-cascade, 
+                        "d" : dlib,
                         ''',
                     default='h')
 parser.add_argument('--video_number',
@@ -17,7 +19,6 @@ parser.add_argument('--video_name',
 args = parser.parse_args()
 
 video_number = args.video_number
-# detector = parser.
 
 video_name = None
 if args.video_name is not None:
@@ -36,7 +37,10 @@ cap = cv2.VideoCapture(video_path)
 detector = args.detector
 frame_count, t = 0, 0
 
-model = {'h':'haar'}
+model = {
+    'h':'haar',
+    'd': 'dlib'
+}
 
 while True:
     ret, frame = cap.read()
@@ -50,10 +54,12 @@ while True:
     
     if detector == 'h':
         frame = haarcascade(frame)
+    if detector == 'd':
+        frame = dlibdetector(frame)
 
     t += time.time() - start_time
     fps = frame_count / t
-    cv2.putText(frame, 'FPS(%s): %.2f' %(model[detector], fps), (
+    cv2.putText(frame, 'FPS(%s): %.2f' % (model[detector], fps), (
         10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
     
     cv2.imshow('frame', frame)
