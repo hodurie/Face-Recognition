@@ -9,7 +9,7 @@
 ├── README.md                               - 리드미 파일
 │
 ├── algorithms/                             - Face Detection 알고리즘
-│   └── haarcascade_frontalface_default.xml
+│   └── haarcascade_frontalface_default.xml     - haarcascade 알고리즘
 ├── videos/                                 - test를 위한 video 파일 폴더
 │   ├── test1.mp4
 │   └── test2.mp4
@@ -20,8 +20,9 @@
 ## 사용법
 ```
 # 적용하고 싶은 알고리즘
-python main.py [-d] [h]
+python main.py [-d] {h, d}
 - h : haar-cascade
+- d : dlib
 - default : 'h'
 
 python main.py [--video_number] 숫자
