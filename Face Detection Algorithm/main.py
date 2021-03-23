@@ -1,14 +1,16 @@
 import os
 import cv2
-import dlib
 import argparse
 import time
 from detectors import *
 
 parser = argparse.ArgumentParser(description='Select face detector which you want to use')
-parser.add_argument('--detector', '-d', choices=['h','d'], help='''
-                        "h" : haar-cascade, 
-                        "d" : dlib,
+parser.add_argument('--detector', '-d', choices=['h','d','m', 's', 'o'], help='''
+                        "h" : OpenCV Haar Cascade, 
+                        "d" : Dlib Frontal Face Detector,
+                        "m" : MTCNN,
+                        "s" : SSD,
+                        "o" : OpenCV DNN Face Detector
                         ''',
                     default='h')
 parser.add_argument('--video_number',
@@ -39,8 +41,21 @@ frame_count, t = 0, 0
 
 model = {
     'h':'haar',
-    'd': 'dlib'
+    'd': 'dlib',
+    'm': 'mtcnn',
+    's': 'SSD',
+    'o': 'DNN'
 }
+
+if detector == 's':
+    model_path = './algorithms/res10_300x300_ssd_iter_140000_fp16.caffemodel'
+    config_path = './algorithms/deploy.prototxt'
+    net = cv2.dnn.readNet(model_path, config_path)
+else:
+    model_path = './algorithms/opencv_face_detector_uint8.pb'
+    config_path = './algorithms/opencv_face_detector.pbtxt'
+    net = cv2.dnn.readNet(model_path, config_path)
+
 
 while True:
     ret, frame = cap.read()
@@ -56,7 +71,11 @@ while True:
         frame = haarcascade(frame)
     if detector == 'd':
         frame = dlibdetector(frame)
-
+    if detector == 'm':
+        frame = mtcnndetector(frame)
+    if detector in ('s', 'o'):
+        frame = OpenCVDNN(frame, net)
+    
     t += time.time() - start_time
     fps = frame_count / t
     cv2.putText(frame, 'FPS(%s): %.2f' % (model[detector], fps), (
